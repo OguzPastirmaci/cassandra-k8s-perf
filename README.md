@@ -69,6 +69,8 @@ kubectl create -f provisioner/deployment/kubernetes/example/default_example_stor
 ```
 ## Step 4: Creating local persistent volumes
 
+Again, the following commands assume that you have already cloned the [Local Persistent Storage User Guide](https://github.com/kubernetes-incubator/external-storage/tree/master/local-volume) repo.
+
 **NOTE:** Dynamic provisioning is not supported in beta. All local PersistentVolumes must be statically created.
 
 
@@ -83,9 +85,9 @@ kubectl create -f ./provisioner/deployment/kubernetes/provisioner_generated.yaml
 
 ## Step 5: Deploying Cassandra with the Helm chart
 
-This guide uses the chart in the incubator repository. You need the clone the repository 
+This guide uses the chart in the incubator repository in [this link](https://github.com/helm/charts/tree/master/incubator/cassandra). 
 
-I used the recommended numbers for things like heap size etc. in the chart's values file.
+I changed the values for settings like "max heap size, heap new size" in values.yaml according to the recommended Cassandra configuration parameters in values.yaml.
 
 ```
 helm install --namespace "cassandra" -n "cassandra" incubator/cassandra
@@ -111,7 +113,7 @@ kubectl exec -it --namespace cassandra cassandra-0 -- cassandra-stress write n=1
 
 Then we will run a mixed test.
 
-**NOTE:** I'm running the test on one of the Cassandra notes for simplicity. Feel free to run the same test in the other nodes, too of you think running the test on one node would not saturate the cluster.
+**NOTE:** I'm running the test on one of the Cassandra nodes for simplicity. Feel free to run the same test in the other nodes, too of you think running the test on one node would not saturate the cluster.
 
 **NOTE:** I'm using a great tool called [Kubectx](https://github.com/ahmetb/kubectx) to manage Kubernetes contexts. I highly recommend using it if you're working on multiple Kubernetes clusters at the same time.
 
