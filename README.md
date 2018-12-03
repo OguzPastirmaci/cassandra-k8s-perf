@@ -21,7 +21,7 @@ You can check [this link](https://docs.cloud.oracle.com/iaas/Content/GSG/Tasks/l
 
 You can find more info about protecting data on NVMe devices [here](https://docs.cloud.oracle.com/iaas/Content/Compute/References/nvmedeviceinformation.htm).
 
-NOTE: The number of NVMe devices available changes based on the VM/Bare Metal instance shape. More info about shapes [here](https://cloud.oracle.com/compute/virtual-machine/features).
+NOTE: The number of available NVMe devices changes based on the VM/Bare Metal instance shape. Make sure to change the command when creating the array accordingly. More info about shapes [here](https://cloud.oracle.com/compute/virtual-machine/features).
 
 ```
 sudo yum install mdadm -y
@@ -83,6 +83,8 @@ kubectl create -f ./provisioner/deployment/kubernetes/provisioner_generated.yaml
 
 ## Step 5: Deploying Cassandra with the Helm chart
 
+This guide uses the chart in the incubator repository. You need the clone the repository 
+
 I used the recommended numbers for things like heap size etc. in the chart's values file.
 
 ```
@@ -91,11 +93,15 @@ helm install --namespace "cassandra" -n "cassandra" incubator/cassandra
 
 ## Step 6: Running Cassandra performance tests
 
-Cassandra has great tools to check the status of the nodes and test the performance.
+It takes about 6 minutes for all the Cassandra nodes up and running. You can check the status by running the following command:
 
 ```
 kubectl exec -it --namespace cassandra cassandra-0 -- nodetool status
 ```
+
+After the cluster is running, we can start testing the performance. We will use Cassandra's built-in testing tool called `cassandra-stress`.
+
+We will be using the tests documented in Datastax's [page](https://docs.datastax.com/en/cassandra/3.0/cassandra/tools/toolsCStress.html) for `cassandra-stress`.
 
 Firstly, we will initialize with 1 million writes:
 
