@@ -13,7 +13,7 @@ I used Kubernetes 1.11.1 running on Oracle Linux 7.5 when writing the instructio
 Follow the steps in [this link](https://www.oracle.com/webfolder/technetwork/tutorials/obe/oci/oke-full/index.html) to create a managed Kubernetes cluster running in OCI.
 
 ## Step 2: Creating a RAID array
-After the cluster is created, we will SSH into the worker nodes and prepare the NVMe drives for Kubernetes. We will basically create a RAID0 array, format it as XFS and then mount it.
+After the cluster is created, SSH into the worker nodes and prepare the NVMe drives for Kubernetes. You will basically create a RAID0 array as it's recommended by the [documentation](http://cassandra.apache.org/doc/4.0/operating/hardware.html#disks), format it as XFS and then mount it.
 
 You can check [this link](https://docs.cloud.oracle.com/iaas/Content/GSG/Tasks/launchinginstance.htm#three) to learn how to get the public IPs of the worker nodes.
 
@@ -101,28 +101,26 @@ It takes about 6 minutes for all the Cassandra nodes up and running. You can che
 kubectl exec -it --namespace cassandra cassandra-0 -- nodetool status
 ```
 
-After the cluster is running, we can start testing the performance. We will use Cassandra's built-in testing tool called `cassandra-stress`.
+After the cluster is running, you can start testing the performance. You can use Cassandra's built-in testing tool called `cassandra-stress`.
 
-We will be using the tests documented in Datastax's [page](https://docs.datastax.com/en/cassandra/3.0/cassandra/tools/toolsCStress.html) for `cassandra-stress`.
+The tests to run are taken from Datastax's [page](https://docs.datastax.com/en/cassandra/3.0/cassandra/tools/toolsCStress.html) for `cassandra-stress`.
 
-Firstly, we will initialize with 1 million writes:
+Firstly, initialize with 1 million writes:
 
 ```
 kubectl exec -it --namespace cassandra cassandra-0 -- cassandra-stress write n=1000000 -rate threads=50
 ```
 
-Then we will run a mixed test.
+Then run a mixed test.
 
 **NOTE:** I'm running the test on one of the Cassandra nodes for simplicity. Feel free to run the same test in the other nodes, too of you think running the test on one node would not saturate the cluster.
 
-**NOTE:** I'm using a great tool called [Kubectx](https://github.com/ahmetb/kubectx) to manage Kubernetes contexts. I highly recommend using it if you're working on multiple Kubernetes clusters at the same time.
-
 ```
-kubectl exec -it --namespace cassandra cassandra-0 -- cassandra-stress mixed ratio\(write=1,read=3\) n=100000 cl=ONE -pop dist=UNIFORM\(1..1000000\) -schema keyspace="keyspace1" -mode native cql3 -rate threads\>=16 threads\<=256 -log file=./$(kubectx)_mixed_autorate_50r50w_1M.log -graph file=$(kubectx).html title=$(kubectx)
+kubectl exec -it --namespace cassandra cassandra-0 -- cassandra-stress mixed ratio\(write=1,read=3\) n=100000 cl=ONE -pop dist=UNIFORM\(1..1000000\) -schema keyspace="keyspace1" -mode native cql3 -rate threads\>=16 threads\<=256 -log file=~/mixed_autorate_50r50w_1M.log -graph file=~/mixed_autorate_50r50w_1M.html title=mixed_autorate_50r50w_1M
 ```
 
 ```
-kubectl cp cassandra/cassandra-0:$(kubectx)_mixed_autorate_50r50w_1M.log /Users/opastirm/Documents/test-results/$(kubectx)
+kubectl cp cassandra/cassandra-0:~/mixed_autorate_50r50w_1M.log /Users/opastirm/Documents/test-results/$(kubectx)
 ```
 
 ```
