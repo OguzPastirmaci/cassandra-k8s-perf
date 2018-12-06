@@ -119,10 +119,14 @@ Then run a mixed test.
 kubectl exec -it --namespace cassandra cassandra-0 -- cassandra-stress mixed ratio\(write=1,read=3\) n=100000 cl=ONE -pop dist=UNIFORM\(1..1000000\) -schema keyspace="keyspace1" -mode native cql3 -rate threads\>=16 threads\<=256 -log file=~/mixed_autorate_50r50w_1M.log -graph file=~/mixed_autorate_50r50w_1M.html title=mixed_autorate_50r50w_1M
 ```
 
+The command will also create a web page with the graphs of the results.
+
+You can use the following commands to copy the test results and the graphs to your computer:
+
 ```
-kubectl cp cassandra/cassandra-0:~/mixed_autorate_50r50w_1M.log /Users/opastirm/Documents/test-results/$(kubectx)
+kubectl cp cassandra/cassandra-0:~/mixed_autorate_50r50w_1M.log DESTINATION_FOLDER
 ```
 
 ```
-kubectl cp cassandra/cassandra-0:$(kubectx).html /Users/opastirm/Documents/test-results/$(kubectx)
+kubectl cp cassandra/cassandra-0:~/mixed_autorate_50r50w_1M.html DESTINATION_FOLDER
 ```
